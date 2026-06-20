@@ -2,6 +2,10 @@
 *.o
 *.obj
 
+# Python
+__pycache__/
+*.pyc
+
 # Local logs
 *.log
 
