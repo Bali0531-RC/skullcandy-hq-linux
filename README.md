@@ -106,6 +106,8 @@ dll/
 systemd/hidbridge.service  user service for the helper
 udev/99-skullcandy.rules   device permissions
 launcher/ , desktop/       templates rendered at install time
+tools/                     hidprobe.py (native probe) + hidlog.c (traffic logger)
+docs/PROTOCOL.md           captured Airoha protocol notes
 ```
 
 ### The bridge `hid.dll`
@@ -158,6 +160,26 @@ functions are wrapped: for handles whose VID is Skullcandy (`0x34F0`) it routes
 ./uninstall.sh              # remove integration, keep the prefix/app
 ./uninstall.sh --purge-prefix   # also delete ~/.wine-skullhq
 ```
+
+---
+
+## Extending to other models / hacking
+
+The bridge is byte-transparent and filters by Skullcandy **vendor** id, so other
+Airoha-based Skullcandy headsets are likely to work as-is. To check yours and
+contribute support:
+
+- `docs/PROTOCOL.md` — the captured Airoha control protocol (transport, a decoded
+  `AB1565` command/response, why Wine needs the bridge).
+- `CONTRIBUTING.md` — step-by-step capture-and-verify workflow.
+- `tools/hidprobe.py` — native probe; lists your device and exercises the
+  control protocol with no Wine involved:
+  ```bash
+  ./tools/hidprobe.py
+  ./tools/hidprobe.py --send 060a00055a06000c0a0210e803 --get 0x07   # AB1565 info
+  ```
+- `tools/hidlog.c` — a logging pass-through `hid.dll` to capture exactly what the
+  app sends/receives for a new model.
 
 ---
 
