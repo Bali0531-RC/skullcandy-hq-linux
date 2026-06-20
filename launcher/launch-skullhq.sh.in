@@ -39,4 +39,14 @@ fi
 # path is unreliable under Wine (black/laggy window on NVIDIA/hybrid GPUs).
 # Override with SKULLHQ_ANGLE= (empty to disable) or e.g. SKULLHQ_ANGLE=gl.
 SKULLHQ_ANGLE="${SKULLHQ_ANGLE-vulkan}"
-exec wine "$APP" ${SKULLHQ_ANGLE:+--use-angle="$SKULLHQ_ANGLE"} "$@"
+# Node/Electron under Wine crashes ("A JavaScript error occurred in the main
+# process / Error: open EBADF") when stdout/stderr is a *pipe* — e.g. when Lutris
+# captures the game's output — because libuv can't wrap a Wine pipe fd in a
+# socket. When we're not on a real terminal, send stdio to a log file instead
+# (a regular file is safe). Override the log path with SKULLHQ_LOG.
+if [ -t 1 ] && [ -t 2 ]; then
+    exec wine "$APP" ${SKULLHQ_ANGLE:+--use-angle="$SKULLHQ_ANGLE"} "$@"
+else
+    exec wine "$APP" ${SKULLHQ_ANGLE:+--use-angle="$SKULLHQ_ANGLE"} "$@" \
+        </dev/null >"${SKULLHQ_LOG:-$INSTALL_DIR/skullhq.log}" 2>&1
+fi

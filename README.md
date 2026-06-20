@@ -188,6 +188,13 @@ functions are wrapped: for handles whose VID is Skullcandy (`0x34F0`) it routes
   purpose. Proton’s Wine 10.x couldn’t do the HID GET_REPORT.
 - **No window on Wayland.** The app runs via XWayland and shows normally; some
   tools just can’t enumerate the window. Check `pgrep -af Skull-HQ.exe`.
+- **“A JavaScript error occurred in the main process” / `Error: open EBADF`.**
+  Node/Electron under Wine can’t wrap a *pipe* stdout/stderr in a socket, so it
+  crashes at startup when a launcher captures its output that way (notably
+  Lutris). The launcher avoids this by sending Wine’s stdio to a log file
+  (`~/.local/share/skullcandy-hq/skullhq.log`) whenever it isn’t attached to a
+  terminal. If you wrap the launcher yourself, redirect its output to a file,
+  not a pipe.
 - **Black/laggy window or “This application could not be started” (GPU).** The
   launcher defaults to ANGLE-on-Vulkan (`--use-angle=vulkan`), which is far more
   reliable under Wine than the GL/EGL path — especially on NVIDIA/hybrid laptops,
