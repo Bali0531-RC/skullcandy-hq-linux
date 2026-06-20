@@ -16,8 +16,8 @@ OUT="${1:-$SCQ_ROOT/skullcandy-hq.lutris.yaml}"
 
 [ -f "$TEMPLATE" ] || die "template not found: $TEMPLATE"
 
-sed -e "s|@SCQ_ROOT@|$SCQ_ROOT|g" \
-    -e "s|@INSTALL_DIR@|$INSTALL_DIR|g" \
+sed -e "s|@SCQ_ROOT@|$(sed_rhs "$SCQ_ROOT")|g" \
+    -e "s|@INSTALL_DIR@|$(sed_rhs "$INSTALL_DIR")|g" \
     "$TEMPLATE" > "$OUT"
 
 log "Wrote Lutris installer: $OUT"

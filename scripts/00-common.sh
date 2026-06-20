@@ -21,18 +21,26 @@ log()  { printf '\033[1;36m[skullcandy-hq]\033[0m %s\n' "$*"; }
 warn() { printf '\033[1;33m[skullcandy-hq] WARN:\033[0m %s\n' "$*"; }
 die()  { printf '\033[1;31m[skullcandy-hq] ERROR:\033[0m %s\n' "$*" >&2; exit 1; }
 
+# Escape a string for safe use as the replacement (RHS) of a sed `s|…|…|`.
+# Needed for Windows paths (backslashes), the `|` delimiter, and `&`.
+sed_rhs() { printf '%s' "$1" | sed -e 's/[\\&|]/\\&/g'; }
+
 # Find resources/app.asar inside the prefix (after the app is installed).
 find_app_asar() {
     find "$WINEPREFIX/drive_c" -type f -path '*/resources/app.asar' 2>/dev/null | head -n1
 }
 
 # Find the directory that holds AirohaHidCoreLib.dll (where the hid.dll bridge goes).
+# NB: capture into a quoted variable instead of `xargs dirname`, which would
+# word-split paths containing spaces (e.g. "…/drive_c/Program Files/Skull-HQ/…").
 find_airoha_dir() {
     local asar; asar="$(find_app_asar)"
     [ -n "$asar" ] || return 1
     local res; res="$(dirname "$asar")"
-    find "$res/app.asar.unpacked" -type f -name 'AirohaHidCoreLib.dll' 2>/dev/null \
-        | head -n1 | xargs -r dirname
+    local dll
+    dll="$(find "$res/app.asar.unpacked" -type f -name 'AirohaHidCoreLib.dll' 2>/dev/null | head -n1)"
+    [ -n "$dll" ] || return 1
+    dirname "$dll"
 }
 
 # Locate the system Wine's builtin hid.dll (PE build).

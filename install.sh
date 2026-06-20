@@ -116,15 +116,15 @@ fi
 # 6. Render and install the launcher + desktop entry
 # ---------------------------------------------------------------------------
 log "Installing launcher and desktop entry…"
-sed -e "s|@WINEPREFIX@|$WINEPREFIX|g" \
-    -e "s|@INSTALL_DIR@|$INSTALL_DIR|g" \
-    -e "s|@APP_EXE@|$APP_EXE_WIN|g" \
-    -e "s|@AIROHA_DIR@|$AIROHA_DIR|g" \
-    -e "s|@WINE_HID_DLL@|$WINE_HID_DLL|g" \
+sed -e "s|@WINEPREFIX@|$(sed_rhs "$WINEPREFIX")|g" \
+    -e "s|@INSTALL_DIR@|$(sed_rhs "$INSTALL_DIR")|g" \
+    -e "s|@APP_EXE@|$(sed_rhs "$APP_EXE_WIN")|g" \
+    -e "s|@AIROHA_DIR@|$(sed_rhs "$AIROHA_DIR")|g" \
+    -e "s|@WINE_HID_DLL@|$(sed_rhs "$WINE_HID_DLL")|g" \
     "$HERE/launcher/launch-skullhq.sh.in" > "$INSTALL_DIR/launch-skullhq.sh"
 chmod +x "$INSTALL_DIR/launch-skullhq.sh"
 mkdir -p "$HOME/.local/share/applications"
-sed -e "s|@INSTALL_DIR@|$INSTALL_DIR|g" \
+sed -e "s|@INSTALL_DIR@|$(sed_rhs "$INSTALL_DIR")|g" \
     "$HERE/desktop/skullcandy-hq.desktop.in" > "$HOME/.local/share/applications/skullcandy-hq.desktop"
 update-desktop-database "$HOME/.local/share/applications" 2>/dev/null || true
 

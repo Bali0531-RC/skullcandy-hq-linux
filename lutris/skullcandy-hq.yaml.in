@@ -58,19 +58,14 @@ script:
         command: 'bash "@SCQ_ROOT@/install.sh" --installer "$setup"'
         disable_runtime: true
 
-  # Shown to the user in the Lutris install dialog.
-  notes: |
-    Plug the SLYR Pro in over USB (not Bluetooth) before launching.
+  # Shown to the user when the install finishes (a real, documented script key).
+  install_complete_text: |
+    Done. Plug the SLYR Pro in over USB (not Bluetooth) before launching.
 
-    This entry drives your SYSTEM Wine on purpose (via the project's own
-    launcher) — Proton/GE-Proton cannot do the headset HID reports, so there is
-    no Wine-version picker here.
-
-    If the headset shows up as "no device", the udev rule may not be installed
-    (it needs root, which Lutris can't do during install). Install it once with:
-
+    If the headset shows up as "no device", install the udev rule once (needs
+    root, which Lutris can't do during install), then re-plug:
         sudo cp '@SCQ_ROOT@/udev/99-skullcandy.rules' /etc/udev/rules.d/99-skullcandy.rules
         sudo udevadm control --reload-rules && sudo udevadm trigger
 
-    then re-plug the headset. The HID bridge runs as a user service
-    (systemctl --user status hidbridge).
+    This entry drives your SYSTEM Wine (Proton/GE can't do the headset HID).
+    The HID bridge runs as a user service: systemctl --user status hidbridge
