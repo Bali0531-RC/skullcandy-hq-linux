@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Skullcandy HQ (SLYR Pro)
+Comment=Skull-HQ via Wine with native HID bridge
+Exec=@INSTALL_DIR@/launch-skullhq.sh
+Icon=audio-headset
+Terminal=false
+Categories=AudioVideo;Audio;Settings;
+StartupWMClass=skull-hq.exe

@@ -1,0 +1,17 @@
+# Build artifacts
+*.o
+*.obj
+
+# Local logs
+*.log
+
+# Editor/OS cruft
+.DS_Store
+*~
+.idea/
+.vscode/
+
+# Never commit the copyrighted app, the Wine prefix, or installers
+*.exe
+wineprefix/
+prefix/

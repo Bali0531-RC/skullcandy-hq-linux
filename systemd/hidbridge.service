@@ -1,0 +1,13 @@
+[Unit]
+Description=Skullcandy SLYR Pro HID bridge (Wine helper)
+Documentation=https://github.com/YOUR_USER/skullcandy-hq-linux
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 %h/.local/share/skullcandy-hq/hidbridge.py
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=default.target

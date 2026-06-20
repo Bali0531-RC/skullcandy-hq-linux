@@ -1,0 +1,46 @@
+LIBRARY hid
+EXPORTS
+HidD_GetAttributes
+HidD_SetOutputReport
+HidD_GetInputReport
+HidD_GetFeature
+HidD_SetFeature
+HidD_FlushQueue = hidwine.HidD_FlushQueue
+HidD_FreePreparsedData = hidwine.HidD_FreePreparsedData
+HidD_GetConfiguration = hidwine.HidD_GetConfiguration
+HidD_GetHidGuid = hidwine.HidD_GetHidGuid
+HidD_GetIndexedString = hidwine.HidD_GetIndexedString
+HidD_GetManufacturerString = hidwine.HidD_GetManufacturerString
+HidD_GetMsGenreDescriptor = hidwine.HidD_GetMsGenreDescriptor
+HidD_GetNumInputBuffers = hidwine.HidD_GetNumInputBuffers
+HidD_GetPhysicalDescriptor = hidwine.HidD_GetPhysicalDescriptor
+HidD_GetPreparsedData = hidwine.HidD_GetPreparsedData
+HidD_GetProductString = hidwine.HidD_GetProductString
+HidD_GetSerialNumberString = hidwine.HidD_GetSerialNumberString
+HidD_Hello = hidwine.HidD_Hello
+HidD_SetConfiguration = hidwine.HidD_SetConfiguration
+HidD_SetNumInputBuffers = hidwine.HidD_SetNumInputBuffers
+HidP_GetButtonCaps = hidwine.HidP_GetButtonCaps
+HidP_GetCaps = hidwine.HidP_GetCaps
+HidP_GetData = hidwine.HidP_GetData
+HidP_GetExtendedAttributes = hidwine.HidP_GetExtendedAttributes
+HidP_GetLinkCollectionNodes = hidwine.HidP_GetLinkCollectionNodes
+HidP_GetScaledUsageValue = hidwine.HidP_GetScaledUsageValue
+HidP_GetSpecificButtonCaps = hidwine.HidP_GetSpecificButtonCaps
+HidP_GetSpecificValueCaps = hidwine.HidP_GetSpecificValueCaps
+HidP_GetUsageValue = hidwine.HidP_GetUsageValue
+HidP_GetUsageValueArray = hidwine.HidP_GetUsageValueArray
+HidP_GetUsages = hidwine.HidP_GetUsages
+HidP_GetUsagesEx = hidwine.HidP_GetUsagesEx
+HidP_GetValueCaps = hidwine.HidP_GetValueCaps
+HidP_InitializeReportForID = hidwine.HidP_InitializeReportForID
+HidP_MaxDataListLength = hidwine.HidP_MaxDataListLength
+HidP_MaxUsageListLength = hidwine.HidP_MaxUsageListLength
+HidP_SetData = hidwine.HidP_SetData
+HidP_SetScaledUsageValue = hidwine.HidP_SetScaledUsageValue
+HidP_SetUsageValue = hidwine.HidP_SetUsageValue
+HidP_SetUsageValueArray = hidwine.HidP_SetUsageValueArray
+HidP_SetUsages = hidwine.HidP_SetUsages
+HidP_TranslateUsagesToI8042ScanCodes = hidwine.HidP_TranslateUsagesToI8042ScanCodes
+HidP_UnsetUsages = hidwine.HidP_UnsetUsages
+HidP_UsageListDifference = hidwine.HidP_UsageListDifference

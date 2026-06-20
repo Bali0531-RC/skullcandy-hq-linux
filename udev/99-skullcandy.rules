@@ -1,0 +1,7 @@
+# Skullcandy SLYR Pro (VID 34f0 PID 2220) — allow user access for Wine + hidbridge.
+# Installed to /etc/udev/rules.d/99-skullcandy.rules
+#
+# The USB rule lets the patched app enumerate the device via /dev/bus/usb.
+# The hidraw rule lets the hidbridge helper open /dev/hidrawN without root.
+SUBSYSTEM=="usb", ATTR{idVendor}=="34f0", ATTR{idProduct}=="2220", MODE="0666"
+KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{idVendor}=="34f0", ATTRS{idProduct}=="2220", MODE="0666"
