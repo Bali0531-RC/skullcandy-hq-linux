@@ -90,24 +90,47 @@ Then launch **“Skullcandy HQ (SLYR Pro)”** from your app menu, or:
 
 ## Install via Lutris (optional)
 
-Prefer to manage it from Lutris? There's a generated Lutris installer that uses
-the same machinery (system Wine + native HID bridge). It registers a normal Wine
-game entry and reuses `install.sh` under the hood for the bridge wiring.
+Prefer to manage it from Lutris? There are two flavours, both using the same
+machinery (system Wine + native HID bridge) via the built-in **linux** runner.
+
+### A) From your local clone
+
+Generates an installer that calls *this* checkout's `install.sh`:
 
 ```bash
 ./scripts/make_lutris_script.sh          # writes ./skullcandy-hq.lutris.yaml
 lutris --install ./skullcandy-hq.lutris.yaml
 ```
 
-During install Lutris will ask you to pick the official **Skull-HQ installer
-(.exe)** — the same one you'd pass to `install.sh`. Notes:
+The generated YAML hard-codes the path to this clone, so keep the repo in place
+(re-run `make_lutris_script.sh` if you move it).
 
-- It uses the built-in **linux** runner and drives your **system Wine** through
-  the project's own launcher (there's no Wine-version picker). Proton/GE-Proton
-  can't do the headset HID, which is why Lutris doesn't manage Wine here.
-- The generated YAML hard-codes the path to *this cloned repo* (Lutris calls its
-  `install.sh`), so keep the repo in place. Re-run `make_lutris_script.sh` if you
-  move it.
+### B) Plug-and-play (publishable)
+
+`lutris/skullcandy-hq.publish.yaml` is fully self-contained — every input comes
+from a URL (it downloads the Skull-HQ installer **and** this repo's tarball from
+GitHub), so it can be shared or submitted to the Lutris website and installed by
+anyone:
+
+```bash
+lutris --install ./lutris/skullcandy-hq.publish.yaml
+```
+
+> Publishing it requires this repo to be pushed to GitHub (it pulls
+> `…/archive/refs/heads/main.tar.gz`). For a reproducible published installer, cut
+> a release tag and point the `bridge` file at `…/refs/tags/vX.Y.Z.tar.gz` instead
+> of `main`. Lutris-website submissions are reviewed by moderators; an installer
+> that runs a downloaded `install.sh` and needs a manual `sudo` for udev may or
+> may not be accepted there — it always works when installed from the file directly.
+
+### Both flavours
+
+- They auto-download the official **Skull-HQ 3.2.0** installer (the version the
+  asar patcher is anchored to); you can still override with a local `.exe` in the
+  download dialog.
+- They drive your **system Wine** through the project's own launcher — there's no
+  Wine-version picker. Proton/GE-Proton can't do the headset HID, which is why
+  Lutris doesn't manage Wine here.
 - The **udev rule needs root**, which Lutris can't do mid-install. If the headset
   shows up as “no device”, install it once (the command is shown in the Lutris
   install notes) and re-plug:
@@ -137,7 +160,8 @@ dll/
 systemd/hidbridge.service  user service for the helper
 udev/99-skullcandy.rules   device permissions
 launcher/ , desktop/       templates rendered at install time
-lutris/                    skullcandy-hq.yaml.in (Lutris installer template)
+lutris/                    skullcandy-hq.yaml.in (local template) +
+                           skullcandy-hq.publish.yaml (self-contained, publishable)
 tools/                     hidprobe.py (native probe) + hidlog.c (traffic logger)
 docs/PROTOCOL.md           captured Airoha protocol notes
 ```

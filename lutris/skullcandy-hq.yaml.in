@@ -17,24 +17,26 @@
 # wine-ge builds are the wrong Wine for this. So instead of fighting Lutris's Wine
 # management we let the project drive Wine itself: the install step runs the repo's
 # tested install.sh (which uses system Wine), and the game launches the launcher it
-# generates (launch-skullhq.sh) via the built-in "linux" runner. You provide the
-# official Skull-HQ installer when Lutris asks for it.
+# generates (launch-skullhq.sh) via the built-in "linux" runner. Lutris downloads
+# the official Skull-HQ 3.2.0 installer from Skullcandy's server automatically.
 #
 # NOTE: @SCQ_ROOT@ / @INSTALL_DIR@ are filled in by make_lutris_script.sh. Keep the
 # cloned repo where it is (Lutris calls its install.sh); re-render if you move it.
 
 name: Skullcandy HQ (SLYR Pro)
 game_slug: skullcandy-hq-slyr-pro
-version: Wine + HID bridge
+version: 3.2.0 (Wine + HID bridge)
 slug: skullcandy-hq-slyr-pro
 runner: linux
 
 script:
-  # The user supplies the official Skull-HQ installer (we can't redistribute it).
+  # Auto-download the official Skull-HQ installer from Skullcandy's own server.
+  # Pinned to 3.2.0 — the version the asar patcher is anchored to. Lutris still
+  # lets you override with a local .exe in the download dialog if you prefer.
   files:
     - setup:
-        filename: Skull-HQ-Setup.exe
-        url: "N/A:Select the Skull-HQ installer (.exe) you downloaded from Skullcandy"
+        filename: Skull-HQ-Setup-3.2.0.exe
+        url: "https://skull-hq.s3.us-east-1.amazonaws.com/Skull-HQ+Setup+3.2.0.exe"
 
   game:
     # The launcher install.sh generates: starts the HID bridge helper and runs
@@ -49,10 +51,11 @@ script:
     # Do the real work with the repo's installer: Wine deps, run the Skull-HQ
     # setup, patch app.asar for Linux detection, install the bridge DLLs + helper
     # service, and generate the launcher we point the game at above.
+    # NOTE: with `command:`, Lutris runs `bash -c "<command>"` — so the whole
+    # command line goes in `command:` (a separate `args:` field is ignored).
     - execute:
         description: "Installing Skull-HQ + native HID bridge (system Wine). Complete any installer prompts that appear."
-        command: bash
-        args: '@SCQ_ROOT@/install.sh --installer "$setup"'
+        command: 'bash "@SCQ_ROOT@/install.sh" --installer "$setup"'
         disable_runtime: true
 
   # Shown to the user in the Lutris install dialog.

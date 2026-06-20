@@ -132,13 +132,22 @@ update-desktop-database "$HOME/.local/share/applications" 2>/dev/null || true
 # 7. udev rule (needs root) — do it last so everything else is already done
 # ---------------------------------------------------------------------------
 log "Installing udev rule (needs sudo) so the device is usable without root…"
-if sudo -n true 2>/dev/null || sudo -v 2>/dev/null; then
+# Use passwordless sudo if available; otherwise only prompt when we have a real
+# terminal. This avoids hanging when run non-interactively (e.g. from Lutris).
+if sudo -n true 2>/dev/null; then
+    SUDO_OK=1
+elif [ -t 0 ] && sudo -v 2>/dev/null; then
+    SUDO_OK=1
+else
+    SUDO_OK=0
+fi
+if [ "$SUDO_OK" = 1 ]; then
     sudo cp "$HERE/udev/99-skullcandy.rules" /etc/udev/rules.d/99-skullcandy.rules
     sudo udevadm control --reload-rules 2>/dev/null || true
     sudo udevadm trigger 2>/dev/null || true
     log "udev rule installed."
 else
-    warn "Could not get sudo. Install the udev rule manually:"
+    warn "Could not get sudo non-interactively. Install the udev rule manually:"
     warn "  sudo cp '$HERE/udev/99-skullcandy.rules' /etc/udev/rules.d/99-skullcandy.rules"
     warn "  sudo udevadm control --reload-rules && sudo udevadm trigger"
 fi

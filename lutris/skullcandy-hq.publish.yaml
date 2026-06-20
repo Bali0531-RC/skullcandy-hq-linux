@@ -1,0 +1,83 @@
+# Plug-and-play Lutris installer for "Skullcandy HQ (SLYR Pro)".
+#
+# Unlike lutris/skullcandy-hq.yaml.in (which calls a *local* clone), this one is
+# fully self-contained: every input comes from a URL, so it can be published to
+# the Lutris website (lutris.net) and installed by anyone with one click.
+#
+#   lutris --install ./skullcandy-hq.publish.yaml
+#
+# How it works
+# ------------
+#   * Downloads the official Skull-HQ 3.2.0 installer from Skullcandy's server.
+#   * Downloads this project's repo tarball from GitHub.
+#   * Extracts the repo into the installer cache and runs its tested install.sh,
+#     which sets up the Wine prefix, runs the Skull-HQ setup, patches app.asar
+#     for Linux detection, installs the native HID bridge + helper service, and
+#     generates the launcher.
+#   * Registers the game with the built-in "linux" runner pointed at that
+#     launcher (which drives SYSTEM Wine — required for the headset HID).
+#
+# Publishing notes
+# ----------------
+#   * The repo tarball is pinned to the `main` branch. For a reproducible
+#     published installer, cut a release tag and use instead:
+#       https://github.com/Bali0531-RC/skullcandy-hq-linux/archive/refs/tags/vX.Y.Z.tar.gz
+#     (extracts to the same place — install.sh always lands at $CACHE/src/install.sh).
+#   * The udev rule needs root, which Lutris can't do during install; the notes
+#     below tell the user how to apply it once.
+
+name: Skullcandy HQ (SLYR Pro)
+game_slug: skullcandy-hq-slyr-pro
+version: 3.2.0 (Wine + HID bridge)
+slug: skullcandy-hq-slyr-pro
+runner: linux
+
+script:
+  files:
+    # Official Skull-HQ installer (Skullcandy's own host), pinned to 3.2.0 —
+    # the version the asar patcher is anchored to.
+    - setup:
+        filename: Skull-HQ-Setup-3.2.0.exe
+        url: "https://skull-hq.s3.us-east-1.amazonaws.com/Skull-HQ+Setup+3.2.0.exe"
+    # This project's payload (install.sh + bridge + DLL + scripts).
+    - bridge:
+        filename: skullcandy-hq-linux.tar.gz
+        url: "https://github.com/Bali0531-RC/skullcandy-hq-linux/archive/refs/heads/main.tar.gz"
+
+  game:
+    # The launcher install.sh generates: starts the HID bridge helper and runs
+    # Skull-HQ under SYSTEM Wine with the bridge hid.dll override.
+    exe: $HOME/.local/share/skullcandy-hq/launch-skullhq.sh
+
+  system:
+    # Run in a clean environment (system Wine), not the Lutris runtime.
+    disable_runtime: true
+
+  installer:
+    # 1. Unpack the repo. merge_single strips the tarball's top folder, so the
+    #    project lands directly at $CACHE/src (install.sh at $CACHE/src/install.sh).
+    - extract:
+        file: bridge
+        dst: $CACHE/src
+    # 2. Run the real installer. With `command:`, Lutris runs `bash -c "<command>"`.
+    - execute:
+        description: "Installing Skull-HQ + native HID bridge (system Wine). Complete any installer prompts that appear."
+        command: 'bash "$CACHE/src/install.sh" --installer "$setup"'
+        disable_runtime: true
+
+  notes: |
+    Plug the SLYR Pro in over USB (not Bluetooth) before launching.
+
+    This entry drives your SYSTEM Wine on purpose (via the project's own
+    launcher) — Proton/GE-Proton cannot do the headset HID reports, so there is
+    no Wine-version picker here.
+
+    If the headset shows up as "no device", the udev rule still needs to be
+    installed (it requires root, which Lutris can't do during install). Run once:
+
+        sudo curl -L https://raw.githubusercontent.com/Bali0531-RC/skullcandy-hq-linux/main/udev/99-skullcandy.rules \
+            -o /etc/udev/rules.d/99-skullcandy.rules
+        sudo udevadm control --reload-rules && sudo udevadm trigger
+
+    then re-plug the headset. The HID bridge runs as a user service
+    (systemctl --user status hidbridge).
