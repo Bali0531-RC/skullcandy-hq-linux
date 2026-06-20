@@ -188,6 +188,14 @@ functions are wrapped: for handles whose VID is Skullcandy (`0x34F0`) it routes
   purpose. Proton’s Wine 10.x couldn’t do the HID GET_REPORT.
 - **No window on Wayland.** The app runs via XWayland and shows normally; some
   tools just can’t enumerate the window. Check `pgrep -af Skull-HQ.exe`.
+- **Black/laggy window or “This application could not be started” (GPU).** The
+  launcher defaults to ANGLE-on-Vulkan (`--use-angle=vulkan`), which is far more
+  reliable under Wine than the GL/EGL path — especially on NVIDIA/hybrid laptops,
+  where you'd otherwise see `libEGL … failed to create dri2 screen` and a GPU
+  process crash. To change it, set `SKULLHQ_ANGLE` before launching:
+  `SKULLHQ_ANGLE=gl` (desktop GL), `SKULLHQ_ANGLE=d3d11`, or `SKULLHQ_ANGLE=`
+  (empty) to disable and fall back to software with `--disable-gpu`. In Lutris,
+  set these under the game's **System options → Environment variables**.
 - **Verbose HID/Airoha logs.** Run the launcher with `--enable-logging` and watch
   for `type: 'DEVICE_INFO'`, `BATTERY_INFO`, etc.
 

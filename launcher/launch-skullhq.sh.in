@@ -35,4 +35,8 @@ if [ -n "$AIROHA_DIR" ] && [ -d "$AIROHA_DIR" ]; then
 fi
 
 # 4. Launch.
-exec wine "$APP" "$@"
+# Electron/Chromium renders via ANGLE-on-Vulkan by default — the plain GL/EGL
+# path is unreliable under Wine (black/laggy window on NVIDIA/hybrid GPUs).
+# Override with SKULLHQ_ANGLE= (empty to disable) or e.g. SKULLHQ_ANGLE=gl.
+SKULLHQ_ANGLE="${SKULLHQ_ANGLE-vulkan}"
+exec wine "$APP" ${SKULLHQ_ANGLE:+--use-angle="$SKULLHQ_ANGLE"} "$@"
