@@ -1,0 +1,73 @@
+# Lutris installer for "Skullcandy HQ (SLYR Pro)" — Wine + native HID bridge.
+#
+# This is a TEMPLATE. Render it with the repo path baked in:
+#
+#     ./scripts/make_lutris_script.sh
+#
+# then import the result into Lutris:
+#
+#     lutris --install ./skullcandy-hq.lutris.yaml      # or: lutris -i ...
+#
+# Why runner is "linux" and not "wine"
+# ------------------------------------
+# Skull-HQ needs SYSTEM Wine (Proton/GE won't do the headset HID), and the native
+# bridge copies *your system Wine's* builtin hid.dll — so the runtime Wine must be
+# that same system Wine. Lutris can't "install" a Wine runner version called
+# "System" (it tries to download a build by that name and fails), and its bundled
+# wine-ge builds are the wrong Wine for this. So instead of fighting Lutris's Wine
+# management we let the project drive Wine itself: the install step runs the repo's
+# tested install.sh (which uses system Wine), and the game launches the launcher it
+# generates (launch-skullhq.sh) via the built-in "linux" runner. You provide the
+# official Skull-HQ installer when Lutris asks for it.
+#
+# NOTE: @SCQ_ROOT@ / @INSTALL_DIR@ are filled in by make_lutris_script.sh. Keep the
+# cloned repo where it is (Lutris calls its install.sh); re-render if you move it.
+
+name: Skullcandy HQ (SLYR Pro)
+game_slug: skullcandy-hq-slyr-pro
+version: Wine + HID bridge
+slug: skullcandy-hq-slyr-pro
+runner: linux
+
+script:
+  # The user supplies the official Skull-HQ installer (we can't redistribute it).
+  files:
+    - setup:
+        filename: Skull-HQ-Setup.exe
+        url: "N/A:Select the Skull-HQ installer (.exe) you downloaded from Skullcandy"
+
+  game:
+    # The launcher install.sh generates: starts the HID bridge helper and runs
+    # Skull-HQ under SYSTEM Wine with the bridge hid.dll override.
+    exe: '@INSTALL_DIR@/launch-skullhq.sh'
+
+  system:
+    # Run in a clean environment (system Wine), not the Lutris runtime.
+    disable_runtime: true
+
+  installer:
+    # Do the real work with the repo's installer: Wine deps, run the Skull-HQ
+    # setup, patch app.asar for Linux detection, install the bridge DLLs + helper
+    # service, and generate the launcher we point the game at above.
+    - execute:
+        description: "Installing Skull-HQ + native HID bridge (system Wine). Complete any installer prompts that appear."
+        command: bash
+        args: '@SCQ_ROOT@/install.sh --installer "$setup"'
+        disable_runtime: true
+
+  # Shown to the user in the Lutris install dialog.
+  notes: |
+    Plug the SLYR Pro in over USB (not Bluetooth) before launching.
+
+    This entry drives your SYSTEM Wine on purpose (via the project's own
+    launcher) — Proton/GE-Proton cannot do the headset HID reports, so there is
+    no Wine-version picker here.
+
+    If the headset shows up as "no device", the udev rule may not be installed
+    (it needs root, which Lutris can't do during install). Install it once with:
+
+        sudo cp '@SCQ_ROOT@/udev/99-skullcandy.rules' /etc/udev/rules.d/99-skullcandy.rules
+        sudo udevadm control --reload-rules && sudo udevadm trigger
+
+    then re-plug the headset. The HID bridge runs as a user service
+    (systemctl --user status hidbridge).

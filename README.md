@@ -88,6 +88,36 @@ Then launch **“Skullcandy HQ (SLYR Pro)”** from your app menu, or:
 
 ---
 
+## Install via Lutris (optional)
+
+Prefer to manage it from Lutris? There's a generated Lutris installer that uses
+the same machinery (system Wine + native HID bridge). It registers a normal Wine
+game entry and reuses `install.sh` under the hood for the bridge wiring.
+
+```bash
+./scripts/make_lutris_script.sh          # writes ./skullcandy-hq.lutris.yaml
+lutris --install ./skullcandy-hq.lutris.yaml
+```
+
+During install Lutris will ask you to pick the official **Skull-HQ installer
+(.exe)** — the same one you'd pass to `install.sh`. Notes:
+
+- It uses the built-in **linux** runner and drives your **system Wine** through
+  the project's own launcher (there's no Wine-version picker). Proton/GE-Proton
+  can't do the headset HID, which is why Lutris doesn't manage Wine here.
+- The generated YAML hard-codes the path to *this cloned repo* (Lutris calls its
+  `install.sh`), so keep the repo in place. Re-run `make_lutris_script.sh` if you
+  move it.
+- The **udev rule needs root**, which Lutris can't do mid-install. If the headset
+  shows up as “no device”, install it once (the command is shown in the Lutris
+  install notes) and re-plug:
+  ```bash
+  sudo cp ./udev/99-skullcandy.rules /etc/udev/rules.d/99-skullcandy.rules
+  sudo udevadm control --reload-rules && sudo udevadm trigger
+  ```
+
+---
+
 ## How it’s laid out
 
 ```
@@ -97,6 +127,7 @@ scripts/
   00-common.sh             shared paths/helpers
   patch_asar.py            byte-level, integrity-safe asar patcher (reversible)
   build_dll.sh             build hid_bridge.dll with mingw
+  make_lutris_script.sh    render the Lutris installer from the template
 bridge/
   hidbridge.py             native Linux HID helper daemon (TCP 127.0.0.1:38099)
 dll/
@@ -106,6 +137,7 @@ dll/
 systemd/hidbridge.service  user service for the helper
 udev/99-skullcandy.rules   device permissions
 launcher/ , desktop/       templates rendered at install time
+lutris/                    skullcandy-hq.yaml.in (Lutris installer template)
 tools/                     hidprobe.py (native probe) + hidlog.c (traffic logger)
 docs/PROTOCOL.md           captured Airoha protocol notes
 ```

@@ -19,3 +19,6 @@ __pycache__/
 *.exe
 wineprefix/
 prefix/
+
+# Generated Lutris installer (render with scripts/make_lutris_script.sh)
+*.lutris.yaml
